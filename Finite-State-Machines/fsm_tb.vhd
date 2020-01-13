@@ -44,7 +44,7 @@ BEGIN
 	WAIT FOR 1 * clk_period;
 	ASSERT (s_output = '0') REPORT "When reading a meaningless character, the output should be '0'" SEVERITY ERROR;
 	REPORT "_______________________";
-    
+
 	WAIT;
 END PROCESS stim_process;
 END;

@@ -30,7 +30,7 @@ begin
 process (clk, reset)
 begin
 	-- Resets the state machine
-	if ( reset == '1') then
+	if ( reset = '1') then
 		state <= state_0;
 
 	elsif rising_edge(clk) then
@@ -53,6 +53,8 @@ begin
 					state <= state_3;
 				else
 					state <= state_0;
+				end if;
+
 			when state_2 =>
 				output <= '0';
 				if input = NEW_LINE_CHARACTER then
