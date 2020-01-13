@@ -1,1 +1,1 @@
-# ECSE-425
+# McGill University - ECSE 425 - Computer Architecture
