@@ -35,22 +35,69 @@ begin
 
 	elsif rising_edge(clk) then
 		case state is
-		-- If we have a '/' then we have a potential comment line incoming - move on to state 1 
-		when state_0 =>
-			if input = SLASH_CHARACTER then
-				state <= state_1; 
-			else
-				state <= state_0;
-			end if;
+			-- If we have a '/' then we have a potential comment line incoming - move on to state 1 
+			when state_0 =>
+				output <= '0';
+				if input = SLASH_CHARACTER then
+					state <= state_1; 
+				else
+					state <= state_0;
+				end if;
 
-		-- If we have a '/' followed by '/' or '*' then it is a beginning of a comment - move on to the appropriate state
-		when state_1 =>
-			if input = SLASH_CHARACTER then
-				state <= state_2;
-			elsif input = STAR_CHARACTER then
-				state <= state_3;
-			else
+			-- If we have a '/' followed by '/' or '*' then it is a beginning of a comment - move on to the appropriate state
+			when state_1 =>
+				output <= '0';
+				if input = SLASH_CHARACTER then
+					state <= state_2;
+				elsif input = STAR_CHARACTER then
+					state <= state_3;
+				else
+					state <= state_0;
+			when state_2 =>
+				output <= '0';
+				if input = NEW_LINE_CHARACTER then
+					state <= state_7;
+				else
+					state <= state_4;
+				end if;
+	
+			when state_3 =>
+				output <= '0';
+				if input = STAR_CHARACTER then
+					state <= state_6;
+				else
+					state <= state_5;
+				end if;
+	
+			when state_4 =>
+				output <= '1';
+				if input = NEW_LINE_CHARACTER then
+					state <= state_7;
+				else
+					state <= state_4;
+				end if;
+	
+			when state_5 =>
+				output <= '1';
+				if input = STAR_CHARACTER then 
+					state <= state_6;
+				else
+					state <= state_5;
+				end if;
+	
+			when state_6 =>
+				output <= '1';
+				if input = SLASH_CHARACTER then
+					state <= state_7;
+				else
+					state <= state_5;
+				end if;
+	
+			when state_7 =>
+				output <= '1';
 				state <= state_0;
+		end case;
+	end if;			
 end process;
 
 end behavioral;
