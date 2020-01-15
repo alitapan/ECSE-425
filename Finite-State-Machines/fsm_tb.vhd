@@ -1,3 +1,6 @@
+-- ECSE425 - Assignment 1
+-- Ali Tapan - 260556540 
+
 LIBRARY ieee;
 USE ieee.STD_LOGIC_1164.all;
 
