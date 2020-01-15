@@ -51,9 +51,11 @@ BEGIN
     s_reset <= "0";
     WAIT FOR 1 * clk_period;
 
-    REPORT "Test 1: /**/..."
+    REPORT "Test 1: //(...)/n"
+    s_input <= SLASH_CHARACTER;
+    WAIT FOR 1 * clk_period;
+    ASSERT (s_output = '0') REPORT "When reading a slash character for the first time, the output should be '0'" SEVERITY ERROR;
 
-    //...
 
 
     -- Reset the state machine
