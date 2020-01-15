@@ -35,15 +35,34 @@ BEGIN
 	clk <= '1';
 	WAIT FOR clk_period/2;
 END PROCESS;
- 
+
 --TODO: Thoroughly test your FSM
 stim_process: PROCESS
-BEGIN    
+BEGIN
 	REPORT "Example case, reading a meaningless character";
 	s_input <= "01011000";
 	WAIT FOR 1 * clk_period;
 	ASSERT (s_output = '0') REPORT "When reading a meaningless character, the output should be '0'" SEVERITY ERROR;
 	REPORT "_______________________";
+
+    -- Reset the state machine
+    s_reset <= "1";
+    WAIT FOR 1 * clk_period;
+    s_reset <= "0";
+    WAIT FOR 1 * clk_period;
+
+    REPORT "Test 1: /**/..."
+
+    //...
+
+
+    -- Reset the state machine
+    s_reset <= "1";
+    WAIR FOR 1 * clk_period;
+    s_reset <= "0";
+    WAIT FOR 1 * clk_period;
+
+
 
 	WAIT;
 END PROCESS stim_process;
