@@ -45,24 +45,31 @@ BEGIN
 	ASSERT (s_output = '0') REPORT "When reading a meaningless character, the output should be '0'" SEVERITY ERROR;
 	REPORT "_______________________";
 
-    -- Reset the state machine
-    s_reset <= "1";
-    WAIT FOR 1 * clk_period;
-    s_reset <= "0";
-    WAIT FOR 1 * clk_period;
-
-    REPORT "Test 1: //(...)/n"
-    s_input <= SLASH_CHARACTER;
-    WAIT FOR 1 * clk_period;
-    ASSERT (s_output = '0') REPORT "When reading a slash character for the first time, the output should be '0'" SEVERITY ERROR;
-
-
-
-    -- Reset the state machine
-    s_reset <= "1";
-    WAIR FOR 1 * clk_period;
-    s_reset <= "0";
-    WAIT FOR 1 * clk_period;
+   	 -- Reset the state machine
+	s_reset <= "1";
+	WAIT FOR 1 * clk_period;
+	s_reset <= "0";
+	WAIT FOR 1 * clk_period;
+	
+	-- Test case 1: Double slash + comment + new line character + code 
+        REPORT "Test 1: //test/n test"
+        s_input <= SLASH_CHARACTER;
+        WAIT FOR 1 * clk_period;
+        ASSERT (s_output = '0') REPORT "When reading a slash character for the first time, the output should be '0'" SEVERITY ERROR;
+  
+        s_input <= SLASH_CHARACTER;
+	WAIT FOR 1 * clk_period;
+	ASSERT (s_output = '0') REPORT "When reading a slash character for a second time consecutively, the output should still be '0'" SEVERITY ERROR;
+	
+	s_input <= SLASH_CHARACTER;
+	WAIT FOR 1 * clk_period;
+	ASSERT (s_output = '0') REPORT "When reading a slash character for a second time consecutively, the output should still be '0'" SEVERITY ERROR;
+	
+        -- Reset the state machine
+        s_reset <= "1";
+        WAIR FOR 1 * clk_period;
+        s_reset <= "0";
+        WAIT FOR 1 * clk_period;
 
 
 
