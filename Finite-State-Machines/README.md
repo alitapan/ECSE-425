@@ -13,7 +13,7 @@ was part of a comment, and '0' otherwise.
 
 The exit sequence of a comment was considered to be a part of the comment while the opening sequence was not.
 
-To compile compile, open ModelSim and change the directory (File, Change Directory) to the one containing those three files. In the 
+To compile, open ModelSim and change the directory (File, Change Directory) to the one containing those three files. In the 
 Transcript section (ModelSim console), run the following command:
 
 <b> source fsm_tb.tcl </b>
