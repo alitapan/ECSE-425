@@ -117,6 +117,36 @@ BEGIN
 
 	WAIT FOR 3 * clk_period;
 	
+	-- **************  TEST 4 ************** --
+	REPORT "Test Case 4: 2 Clock Cycle with a = 2, b = 5, c = 7, d = 3, e = 4";
+	-- Empty the pipeline first
+	s_a <= 0;
+	s_b <= 0;
+	s_c <= 0;
+	s_d <= 0;
+	s_e <= 0;
+
+	WAIT FOR 3 * clk_period;
+	
+	-- Then set the inputs
+	s_a <= 2;
+	s_b <= 5;
+	s_c <= 7;
+	s_d <= 3;
+	s_e <= 4;
+
+	WAIT FOR 2 * clk_period;
+	
+	ASSERT (s_op1 = 7) REPORT "op1 should be equal to '7', test result =" & integer'image(s_op1) SEVERITY ERROR;
+	ASSERT (s_op2 = 294) REPORT "op2 should be equal to '294', test result =" & integer'image(s_op2) SEVERITY ERROR;
+	ASSERT (s_op3 = 21) REPORT "op3 should be equal to '21', test result =" & integer'image(s_op3) SEVERITY ERROR;
+	ASSERT (s_op4 = -2) REPORT "op4 should be equal to '-2', test result =" & integer'image(s_op4) SEVERITY ERROR;
+	ASSERT (s_op5 = -42) REPORT "op5 should be equal to '0', test result =" & integer'image(s_op5) SEVERITY ERROR;
+	ASSERT (s_final_output = 336) REPORT "final_output should be equal to 336, test result =" & integer'image(s_final_output) SEVERITY ERROR;
+
+	WAIT FOR 3 * clk_period;
+
+	
 	WAIT;
 END PROCESS stim_process;
 END;

@@ -15,7 +15,7 @@ end pipeline;
 
 architecture behavioral of pipeline is
 
--- The operation ((a + b) * 42) - (c * d * (a-e)) will be completed in 3 clock cycles with pipelining.
+-- The operation ((a + b) * 42) - (c * d * (a-e)) will be completed in 2 clock cycles with pipelining.
 -- To store the asynchronous parts we have the following:
 signal register_1, register_2, register_3, register_4, register_5: integer;
 -- To store the synchronous parts (at every clock cycle) we have the following:
