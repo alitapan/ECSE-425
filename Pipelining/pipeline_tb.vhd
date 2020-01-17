@@ -41,16 +41,82 @@ END PROCESS;
 stim_process: PROCESS
 BEGIN   
 	-- Simulate the inputs for the pipelined equation ((a + b) * 42) - (c * d * (a - e)) and assert the results
+	-- s_op1 = a + b
+	-- s_op2 = s_op1 * 42
+	-- s_op3 = c * d
+	-- s_op4 = a - e
+	-- s_op5 = s_op4 * s_op3
+	-- s_final_output = s_op2 - s_op5
 
-	REPORT "Test Case 1: a = 0, b = 0, c = 0, d = 0, e = 0";
+	-- **************  TEST 1 ************** --
+	REPORT "Test Case 1: Zero Case with a = 0, b = 0, c = 0, d = 0, e = 0  ----> expected output is 0";
 	s_a <= 0;
 	s_b <= 0;
 	s_c <= 0;
 	s_d <= 0;
 	s_e <= 0;
+
+	WAIT FOR 3 * clk_period;
+
+	ASSERT (s_op1 = 0) REPORT "op1 should be equal to '0', test result =" & integer'image(s_op1) SEVERITY ERROR;
+	ASSERT (s_op2 = 0) REPORT "op2 should be equal to '0', test result =" & integer'image(s_op2) SEVERITY ERROR;
+	ASSERT (s_op3 = 0) REPORT "op3 should be equal to '0', test result =" & integer'image(s_op3) SEVERITY ERROR;
+	ASSERT (s_op4 = 0) REPORT "op4 should be equal to '0', test result =" & integer'image(s_op4) SEVERITY ERROR;
+	ASSERT (s_op5 = 0) REPORT "op5 should be equal to '0', test result =" & integer'image(s_op5) SEVERITY ERROR;
+	ASSERT (s_final_output = 0) REPORT "final_output should be equal to 0, test result =" & integer'image(s_final_output) SEVERITY ERROR;
+	
+	-- Let the pipeline clear up
+
+	WAIT FOR 3 * clk_period;
+
+
+	-- **************  TEST 2 ************** --
+	REPORT "Test Case 2: Full Case with a = 5, b = 4, c = 2, d = 7, e = 10 ----> expected output is 448";
+	s_a <= 5;
+	s_b <= 4;
+	s_c <= 2;
+	s_d <= 7;
+	s_e <= 10;
+
+	WAIT FOR 3 * clk_period;
+
+	ASSERT (s_op1 = 9) REPORT "op1 should be equal to '9', test result =" & integer'image(s_op1) SEVERITY ERROR;
+	ASSERT (s_op2 = 378) REPORT "op2 should be equal to '378', test result =" & integer'image(s_op2) SEVERITY ERROR;
+	ASSERT (s_op3 = 14) REPORT "op3 should be equal to '14', test result =" & integer'image(s_op3) SEVERITY ERROR;
+	ASSERT (s_op4 = -5) REPORT "op4 should be equal to '0', test result =" & integer'image(s_op4) SEVERITY ERROR;
+	ASSERT (s_op5 = -70) REPORT "op5 should be equal to '0', test result =" & integer'image(s_op5) SEVERITY ERROR;
+	ASSERT (s_final_output = 448) REPORT "final_output should be equal to 448, test result =" & integer'image(s_final_output) SEVERITY ERROR;
+
+	-- **************  TEST 3 ************** --
+	REPORT "Test Case 3: 1 Clock Cycle with a = 2, b = 5, c = 7, d = 3, e = 4";
+	-- Empty the pipeline first
+	s_a <= 0;
+	s_b <= 0;
+	s_c <= 0;
+	s_d <= 0;
+	s_e <= 0;
+
 	WAIT FOR 3 * clk_period;
 	
-		
+	-- Then set the inputs
+	s_a <= 2;
+	s_b <= 5;
+	s_c <= 7;
+	s_d <= 3;
+	s_e <= 4;
+
+	WAIT FOR 1 * clk_period;
+	
+	-- Since only 1 clock cycle has elapsed s_op2, s_op5 and s_final_output should be zero
+	ASSERT (s_op1 = 7) REPORT "op1 should be equal to '7', test result =" & integer'image(s_op1) SEVERITY ERROR;
+	ASSERT (s_op2 = 0) REPORT "op2 should be equal to '0', test result =" & integer'image(s_op2) SEVERITY ERROR;
+	ASSERT (s_op3 = 21) REPORT "op3 should be equal to '21', test result =" & integer'image(s_op3) SEVERITY ERROR;
+	ASSERT (s_op4 = -2) REPORT "op4 should be equal to '-2', test result =" & integer'image(s_op4) SEVERITY ERROR;
+	ASSERT (s_op5 = 0) REPORT "op5 should be equal to '0', test result =" & integer'image(s_op5) SEVERITY ERROR;
+	ASSERT (s_final_output = 0) REPORT "final_output should be equal to 0, test result =" & integer'image(s_final_output) SEVERITY ERROR;
+
+	WAIT FOR 3 * clk_period;
+	
 	WAIT;
 END PROCESS stim_process;
 END;
