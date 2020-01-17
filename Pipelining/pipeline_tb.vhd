@@ -1,3 +1,6 @@
+-- ECSE 425 - Assignment 2
+-- Ali Tapan - 260556540
+
 LIBRARY ieee;
 USE ieee.STD_LOGIC_1164.all;
 use ieee.numeric_std.all;
@@ -37,7 +40,17 @@ END PROCESS;
 
 stim_process: PROCESS
 BEGIN   
-	--TODO: Stimulate the inputs for the pipelined equation ((a + b) * 42) - (c * d * (a - e)) and assert the results
+	-- Simulate the inputs for the pipelined equation ((a + b) * 42) - (c * d * (a - e)) and assert the results
+
+	REPORT "Test Case 1: a = 0, b = 0, c = 0, d = 0, e = 0";
+	s_a <= 0;
+	s_b <= 0;
+	s_c <= 0;
+	s_d <= 0;
+	s_e <= 0;
+	WAIT FOR 3 * clk_period;
+	
+		
 	WAIT;
 END PROCESS stim_process;
 END;
