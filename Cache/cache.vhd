@@ -38,17 +38,52 @@ architecture arch of cache is
 -- in the cache is cleaned or replaced with a new line.
 -- Define the possible states for a write-back cache:
 
-type state_type is (initial, _read, _write, _memread, _memwrite, _memwait, _memoverwrite);
+type state_type is (initial, _read, _write, _memread, _memwrite, _memwait, _writeback);
 signal state : state_type;
 signal _next : state_type;
 type cache_def is array (0 to 31) of std_logic_vector (154 downto 0);
 signal cache: state_type;
 
 begin
+-- Set up the clock for transition between states
 process (clock, rst)
 begin
 	if rst = '1' then
 		state <= start;
--- make circuits here
+	elsif (clock'event and clock = '1') then
+		state <= next_state;
+	end if;
+
+end process;
+
+process(s_read, s_write, m_waitrequest, state)
+	variable word_offset: INTEGER;
+	variable block_index: INTEGER;
+	variable delta: INTEGER:= word_offset
+	variable count: INTEGER := 0;
+	variable address: std_logic_vector (14 downto 0);
+begin
+	word_offset := to_integer(unsigned(s_addr(1 downto 0));
+	block_index:= to_integer(unsigned(s_addr(6 downto 2));
+	delta := word_offset - 1;
+
+	-- Defininf a Moore state machine for the Cache Operations
+	case state is
+		when initial =>
+
+		when _read =>
+		
+		when _write =>
+
+		when _memread =>
+
+		when _memwrite =>
+
+		when _memwait =>
+
+		when _writeback =>
+	end case;
+end process;
+
 
 end arch;
