@@ -67,7 +67,7 @@ begin
 	block_index:= to_integer(unsigned(s_addr(6 downto 2));
 	delta := word_offset - 1;
 
-	-- Defininf a Moore state machine for the Cache Operations
+	-- Defining a Moore state machine for the Cache Operations
 	case state is
 		when initial =>
 
