@@ -29,10 +29,26 @@ end cache;
 
 architecture arch of cache is
 
--- declare signals here
+-- Address Portions: 
+-- 4 words per block (128 / 32)  -> 2 bits for offset
+-- 32 blocks in the memory (4096 / 128) -> 5 bits for index
+-- 32 bit addresses -> 32 - 5 - 2 = 25 bits for tag
+
+-- Write-back policy only updates external memory when a line 
+-- in the cache is cleaned or replaced with a new line.
+-- Define the possible states for a write-back cache:
+
+type state_type is (initial, _read, _write, _memread, _memwrite, _memwait, _memoverwrite);
+signal state : state_type;
+signal _next : state_type;
+type cache_def is array (0 to 31) of std_logic_vector (154 downto 0);
+signal cache: state_type;
 
 begin
-
+process (clock, rst)
+begin
+	if rst = '1' then
+		state <= start;
 -- make circuits here
 
 end arch;
