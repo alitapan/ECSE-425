@@ -1,3 +1,3 @@
 # McGill University - ECSE 425 - Computer Architecture
 
-he content of this repository is composed of the programming assignments given by Prof. Emad for the ECSE 425 course during the Winter 2020 semester at McGill University. All assignments are written in VHDL.
+The content of this repository is composed of the programming assignments given by Prof. Emad for the ECSE 425 course during the Winter 2020 semester at McGill University. All assignments are written in VHDL.
