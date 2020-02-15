@@ -200,7 +200,7 @@ begin
 			end if;
 	
 		-- Write back operation for the cache
-		when _writeback =>
+		when writeback =>
 			-- Evict the current habitant at the requested address
 			if c < 4 and m_waitrequest = '1' then
 				address := _cache(block_index)(135 downto 128) & s_addr (6 downto 0);
