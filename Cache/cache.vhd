@@ -169,7 +169,7 @@ begin
 				_next <= memory_write;
 			end if;
 
-		-- Wait
+		-- Wait to access the main memory
 		when memory_wait => 
 			if c < 3 and m_waitrequest = '0' then
 				_cache(block_index)(127 downto 0)((c * 8) + 7 + 32*delta downto (c*8) + 32*delta) <= m_readdate;
@@ -182,7 +182,7 @@ begin
 				m_read <= '0';
 				_next <= memory_wait;
 			elsif c = 4 then
-				s_readdate <= _cache(block_index)(127 downto 0)((word_offset * 32) - 1 downto 32*delta);
+				s_readdata <= _cache(block_index)(127 downto 0)((word_offset * 32) - 1 downto 32*delta);
 				-- Set Tag
 				_cache(block_index)(152 downto 128) <= s_addr (31 downto 7);
 				-- Set dirt bit to 0 and valid bit to 1
@@ -195,6 +195,7 @@ begin
 				count := 0;
 				-- Move back to the initial state to wait for the next operation
 				_next <= initial;
+			-- Keep waiting
 			else
 				_next <= memory_wait;
 			end if;
