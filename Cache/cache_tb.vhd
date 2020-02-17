@@ -191,7 +191,7 @@ begin
 	s_write <= '0';
 	s_read <= '1';
 	wait until rising_edge(s_waitrequest);
-	assert s_readdata = x"03020100" report "write unsuccessful" severity error;
+	assert s_readdata = x"03020100" report "Test 7 Not Passed!" severity error;
 	s_read <= '0';
 	s_write <= '0';
 
@@ -244,7 +244,7 @@ begin
 	s_read <= '1';                                                       
 	s_write <= '0';                                                      
 	wait until rising_edge(s_waitrequest);                               
-	assert s_readdata = x"000F000A" report "write unsuccessful" severity error;
+	assert s_readdata = x"000F000A" report "Test 12 Not Passed!" severity error;
 	s_read <= '0';                                                       
 	s_write <= '0'; 
 
@@ -285,7 +285,7 @@ begin
 	s_read <= '1';
 	s_write <= '0';
 	wait until rising_edge(s_waitrequest);
-	assert s_readdata = x"000000BA" report "write unsuccessful" severity error;
+	assert s_readdata = x"000000BA" report "Test 15 Not Passed!" severity error;
 	s_read <= '0';
 	s_write <= '0';
 
