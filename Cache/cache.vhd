@@ -37,11 +37,15 @@ architecture arch of cache is
 -- Write-back policy only updates external memory when a line 
 -- in the cache is cleaned or replaced with a new line.
 -- Defining the possible states for a write-back cache:
-
 type state_type is (initial, _write, _read, memory_write, memory_read, memory_wait, writeback);
 signal state : state_type;
 signal _next : state_type;
+
+-- Since we need 1 valid bit, 1 dirty bit, 25 tag bits and 128 data bits for the address structure
+-- 1 + 1 + 25 + 128 = 155 bits for the cache
+-- We define bit 154 to be valid bit, bit 153 to be dirty bit, bits 152 to 128 to be tag bits
 type cache_def is array (0 to 31) of std_logic_vector (154 downto 0);
+
 signal _cache: state_type;
 
 begin
@@ -104,7 +108,7 @@ begin
 
 			-- If there is no present dirty bit and valid bit present, set it to 1 since we are doing a write operation
 			else
-				-- Set dirt and valid bits to 1
+				-- Set dirty and valid bits to 1
 				_cache(block_index)(153) <= '1';
 				_cache(block_index)(154) <= '1';
 				-- Write
