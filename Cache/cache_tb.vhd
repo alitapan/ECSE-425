@@ -8,30 +8,30 @@ end cache_tb;
 architecture behavior of cache_tb is
 
 COMPONENT cache is
-GENERIC(
-    ram_size : INTEGER := 32768
-);
-PORT(
+	GENERIC(
+  	  ram_size : INTEGER := 32768
+	);
+	PORT(
 
-    clock : in std_logic;
-    reset : in std_logic;
+    		clock : in std_logic;
+    		reset : in std_logic;
 
-    -- Avalon interface --
-    s_addr : in std_logic_vector (31 downto 0);
-    s_read : in std_logic;
-    s_readdata : out std_logic_vector (31 downto 0);
-    s_write : in std_logic;
-    s_writedata : in std_logic_vector (31 downto 0);
-    s_waitrequest : out std_logic; 
+    		-- Avalon interface --
+    		s_addr : in std_logic_vector (31 downto 0);
+    		s_read : in std_logic;
+    		s_readdata : out std_logic_vector (31 downto 0);
+    		s_write : in std_logic;
+    		s_writedata : in std_logic_vector (31 downto 0);
+    		s_waitrequest : out std_logic; 
 
-    m_addr : out integer range 0 to ram_size-1;
-    m_read : out std_logic;
-    m_readdata : in std_logic_vector (7 downto 0);
-    m_write : out std_logic;
-    m_writedata : out std_logic_vector (7 downto 0);
-    m_waitrequest : in std_logic
-);
-end component;
+    		m_addr : out integer range 0 to ram_size-1;
+    		m_read : out std_logic;
+    		m_readdata : in std_logic_vector (7 downto 0);
+    		m_write : out std_logic;
+   		 m_writedata : out std_logic_vector (7 downto 0);
+    		m_waitrequest : in std_logic
+		);
+	end component;
 
 component memory is 
 GENERIC(
@@ -116,37 +116,40 @@ end process;
 test_process : process
 begin
 
-	WAIT FOR clk_period;  
-
 	-- Table of Contents for Test Cases:
 	--------------------------------------------
 	--    1.  Read  -  Clean,  Hit,   Valid
-	--    2.  Read  -  Clean,  Hit,   Invalid
-	--    3.  Read  -  Clean,  Miss,  Valid
+	--    2.  Read  -  Clean,  Hit,   Invalid (Impossible Case)
+	--    3.  Read  -  Clean,  Miss,  Valid 
 	--    4.  Read  -  Clean,  Miss,  Invalid
 	--    5.  Read  -  Dirty,  Hit,   Valid
-	--    6.  Read  -  Dirty,  Hit,   Invalid
+	--    6.  Read  -  Dirty,  Hit,   Invalid (Impossible Case)
 	--    7.  Read  -  Dirty,  Miss,  Valid
-	--    8.  Read  -  Dirty,  Miss,  Invalid
+	--    8.  Read  -  Dirty,  Miss,  Invalid (Impossible Case)
 	--    9.  Write -  Clean,  Hit,   Valid
-	--    10. Write -  Clean,  Hit,   Invalid
+	--    10. Write -  Clean,  Hit,   Invalid (Impossible Case)
 	--    11. Write -  Clean,  Miss,  Valid
 	--    12. Write -  Clean,  Miss,  Invalid
 	--    13. Write -  Dirty,  Hit,   Valid
-	--    14. Write -  Dirty,  Hit,   Invalid
+	--    14. Write -  Dirty,  Hit,   Invalid (Impossible Case)
 	--    15. Write -  Dirty,  Miss,  Valid
-	--    16. Write -  Dirty,  Miss,  Invalid
+	--    16. Write -  Dirty,  Miss,  Invalid (Impossible Case)
 	--------------------------------------------
 
 	-- 1.  Read  -  Clean,  Hit,   Valid
-
-
+	s_addr <= "11111111111111111111111111111111";                        
+	s_write <= '1';                                                      
+	s_writedata <= x"000F000A";                                          
+	wait until rising_edge(s_waitrequest);                               
+	s_read <= '1';                                                       
+	s_write <= '0';                                                      
+	wait until rising_edge(s_waitrequest);                               
+	assert s_readdata = x"000F000A" report "Test 1 Not Passed!" severity error;
+	s_read <= '0';                                                       
+	s_write <= '0'; 
+	
 	wait for clk_period;
 
-	-- 2.  Read  -  Clean,  Hit,   Invalid
-	
-	
-	wait for clk_period;
 
 	-- 3.  Read  -  Clean,  Miss,  Valid
 	s_addr <= "00000000000000000000000000000000";	
@@ -173,14 +176,19 @@ begin
 	wait for clk_period;
 
 	-- 5.  Read  -  Dirty,  Hit,   Valid
-	
+	s_addr <= "11111111111111111111111111111111";                        
+	s_write <= '1';                                                      
+	s_writedata <= x"000F000A";                                          
+	wait until rising_edge(s_waitrequest);                               
+	s_read <= '1';                                                       
+	s_write <= '0';                                                      
+	wait until rising_edge(s_waitrequest);                               
+	assert s_readdata = x"000F000A" report "Test 5 Not Passed!" severity error;
+	s_read <= '0';                                                       
+	s_write <= '0'; 
 
 	wait for clk_period;
 
-	-- 6.  Read  -  Dirty,  Hit,   Invalid
-
-
-	wait for clk_period;
 
 	-- 7.  Read  -  Dirty,  Miss,  Valid
 	WAIT FOR clk_period;
@@ -198,11 +206,6 @@ begin
 
 	wait for clk_period;
 
-	-- 8.  Read  -  Dirty,  Miss,  Invalid
-
-
-	wait for clk_period;
-
 	-- 9.  Write -  Clean,  Hit,   Valid
 	s_addr <= "10000000000000000000000000000000";	
 	s_read <= '1';                                                       
@@ -214,11 +217,6 @@ begin
 	wait until rising_edge(s_waitrequest);                               
 	s_write <= '0';
 	s_read <= '0';
-
-	wait for clk_period;
-
-	-- 10. Write -  Clean,  Hit,   Invalid
-
 
 	wait for clk_period;
 
@@ -269,11 +267,6 @@ begin
 
 	wait for clk_period;
 
-	-- 14. Write -  Dirty,  Hit,   Invalid
-
-
-	wait for clk_period;
-
 	-- 15. Write -  Dirty,  Miss,  Valid
 	s_addr <= "11111100000000000000000000000000";
 	s_write <= '1';
@@ -289,12 +282,6 @@ begin
 	assert s_readdata = x"000000BA" report "Test 15 Not Passed!" severity error;
 	s_read <= '0';
 	s_write <= '0';
-
-	wait for clk_period;
-
-	-- 16. Write -  Dirty,  Miss,  Invalid
-
-                                                     
 
 	wait for clk_period;
 
