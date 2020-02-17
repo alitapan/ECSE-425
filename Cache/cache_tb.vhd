@@ -115,8 +115,31 @@ end process;
 test_process : process
 begin
 
-	WAIT FOR clk_period;                                           
-	-- Attempt to write to cache                                     
+	WAIT FOR clk_period;  
+
+	-- Table of Contents for Test Cases:
+	---------------------------------------
+	--    1.  Read  -  Clean,  Hit,   Valid
+	--    2.  Read  -  Clean,  Hit,   Invalid
+	--    3.  Read  -  Clean,  Miss,  Valid
+	--    4.  Read  -  Clean,  Miss,  Invalid
+	--    5.  Read  -  Dirty,  Hit,   Valid
+	--    6.  Read  -  Dirty,  Hit,   Invalid
+	--    7.  Read  -  Dirty,  Miss,  Valid
+	--    8.  Read  -  Dirty,  Miss,  Invalid
+	--    9.  Write -  Clean,  Hit,   Valid
+	--    10. Write -  Clean,  Hit,   Invalid
+	--    11. Write -  Clean,  Miss,  Valid
+	--    12. Write -  Clean,  Miss,  Invalid
+	--    13. Write -  Dirty,  Hit,   Valid
+	--    14. Write -  Dirty,  Hit,   Invalid
+	--    15. Write -  Dirty,  Miss,  Valid
+	--    16. Write -  Dirty,  Miss,  Invalid
+
+	
+	-- INVALID
+	--    1.  Read  - Clean and Miss
+
 	
 	-- INVALID  - WRITE MISS CLEAN and  VALID - READ HIT (CLEAN/DIRTY)  
 	s_addr <= "11111111111111111111111111111111";                        
