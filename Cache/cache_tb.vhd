@@ -118,7 +118,7 @@ begin
 	WAIT FOR clk_period;  
 
 	-- Table of Contents for Test Cases:
-	---------------------------------------
+	--------------------------------------------
 	--    1.  Read  -  Clean,  Hit,   Valid
 	--    2.  Read  -  Clean,  Hit,   Invalid
 	--    3.  Read  -  Clean,  Miss,  Valid
@@ -135,6 +135,12 @@ begin
 	--    14. Write -  Dirty,  Hit,   Invalid
 	--    15. Write -  Dirty,  Miss,  Valid
 	--    16. Write -  Dirty,  Miss,  Invalid
+	--------------------------------------------
+
+
+
+	-- 1.  Read  -  Clean,  Hit,   Valid
+
 
 	-- INVALID  - WRITE MISS CLEAN and  VALID - READ HIT (CLEAN/DIRTY)  
 	s_addr <= "11111111111111111111111111111111";                        
