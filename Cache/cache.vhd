@@ -165,7 +165,9 @@ begin
 				m_addr <= to_integer(unsigned (address)) + c;
 				m_write <= '1';
 				m_read <= '0';
+				-- Write
 				m_writedata <= _cache(block_index)(127 downto 0)((c * 8) + 7 + 32*(word_offset - 1) downto (c*8) + 32*(word_offset - 1));
+				-- Increment the word counter
 				c := c + 1;
 				_next <= memomry_write;
 
@@ -181,12 +183,12 @@ begin
 		-- Wait to access the main memory
 		when memory_wait => 
 			if c < 3 and m_waitrequest = '0' then
-				_cache(block_index)(127 downto 0)((c * 8) + 7 + 32*(word_offset - 1) downto (c*8) + 32*(word_offset - 1)) <= m_readdate;
+				_cache(block_index)(127 downto 0)((c * 8) + 7 + 32*(word_offset - 1) downto (c*8) + 32*(word_offset - 1)) <= m_readdata;
 				c := c + 1;
 				m_read <= '0';
 				_next <= memory_read;
 			elsif c = 3 and m_waitrequest = '0' then
-				_cache(block_index)(127 downto 0)((c*8) + 7 + 32*(word_offset - 1) downto (c*8) + 32*(word_offset - 1)) <= m_readdate;
+				_cache(block_index)(127 downto 0)((c*8) + 7 + 32*(word_offset - 1) downto (c*8) + 32*(word_offset - 1)) <= m_readdata;
 				c := c + 1;
 				m_read <= '0';
 				_next <= memory_wait;
