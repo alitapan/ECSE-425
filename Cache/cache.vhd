@@ -36,7 +36,7 @@ architecture arch of cache is
 
 -- Write-back policy only updates external memory when a line 
 -- in the cache is cleaned or replaced with a new line.
--- Defining the possible states for a write-back cache:
+-- Defining all the possible states for a write-back cache:
 type state_type is (initial, _write, _read, memory_write, memory_read, memory_wait, writeback);
 signal state : state_type;
 signal _next : state_type;
@@ -65,20 +65,19 @@ end process;
 process(s_read, s_write, m_waitrequest, state)
 
 	variable c: INTEGER := 0; -- Word counter within the block
-	variable word_offset: INTEGER;
-	variable block_index: INTEGER;
 
 	-- Cache should simply use the lower 15 bits of the address and ignore the rest since
 	-- the main memory here has only 2^15 bytes (32768 bytes).
 	variable address: std_logic_vector (14 downto 0);
 
-	variable delta: INTEGER:= word_offset - 1;
+	-- Defining the offset and index
+	variable word_offset: INTEGER;
+	variable block_index: INTEGER;
 
 
 begin
 	-- 2 bits for offset
 	word_offset := to_integer(unsigned(s_addr(1 downto 0));
-	delta := word_offset - 1;
 	-- 5 bits for index
 	block_index:= to_integer(unsigned(s_addr(6 downto 2));
 	
@@ -102,8 +101,7 @@ begin
 		-- The operation requested is write
 		when _write=>
 			-- Check for dirty and valid bits before writing, if it is then move to the writeback state
-			if _cache(block_index)(153) = '1'  and _next /= initial 
-			and (_cache(block_index)(154) or _cache(block_index)(152 downto 128) /= s_addr (31 downto 7)) then
+			if _cache(block_index)(153) = '1'  and _next /= initial and (_cache(block_index)(154) or _cache(block_index)(152 downto 128) /= s_addr (31 downto 7)) then
 				_next <= writeback;
 
 			-- If there is no present dirty bit and valid bit present, set it to 1 since we are doing a write operation
@@ -112,7 +110,7 @@ begin
 				_cache(block_index)(153) <= '1';
 				_cache(block_index)(154) <= '1';
 				-- Write
-				_cache(block_index)(127 downto 0)((word_offset*32)) - 1 downto 32*delta) <= s_writedata;
+				_cache(block_index)(127 downto 0)((word_offset*32)) - 1 downto 32*(word_offset - 1)) <= s_writedata;
 				_cache(index)(152 downto 128) <= s_addr(31 downto 7);
 				s_waitrequest <= '0';
 				-- Once write operation is done move back to the initial state to wait for the next operation
@@ -124,17 +122,20 @@ begin
 			-- Check if the tags are matching and the valid bit is 1, if its then its a hit in the cache
 			if _cache(block_index)(152 downto 128) = s_addr(31 downto 7) and _cache(block_index)(154) = '1' then
 				-- Read the requested data by indexing though the block and the word
-				s_readdate <= _cache(block_index)(127 downto 0)((word_offset*32) - 1 downto 32*delta);
+				s_readdate <= _cache(block_index)(127 downto 0)((word_offset*32) - 1 downto 32*(word_offset - 1));
 				s_waitrequest <= '0';
 				-- Once read operation is done move back to the initial state to wait for the next operation
 				_next <= initial;
+
 			-- If the requested data is dirty and does not exist in the cache (miss) we have to writeback
 			elsif _cache(block_index)(153) = '1' then
 				_next <= memory_write;
+
 			-- If the requested data is not dirty but does not exist in the cache (miss) we have to bring
 			-- it in from the memory
 			elsif _cache(block_index)(153) = '0' or _cache(block_index)(153) = 'U' then
 				_next <= memory_read;
+
 			-- Reading is not done, keep reading
 			else
 				_next <= _read;
@@ -142,6 +143,7 @@ begin
 
 		-- Reading from the main memory
 		when memory_read =>
+			-- Check for memory wait request to read
 			if m_waitrequest = '1' then 
 				-- Since we're only reading the lower 15 bits
 				m_addr <= to_integer(unsigned(s_addr(14 downto 0))) + c;
@@ -149,6 +151,8 @@ begin
 				m_write <= '0';
 				-- Wait until the read is processed, since main memory is slower than cache
 				_next <= memory_wait;
+			
+			-- If no memory wait request, stay in this state
 			else
 				_next <= memory_read;
 			end if;
@@ -161,9 +165,10 @@ begin
 				m_addr <= to_integer(unsigned (address)) + c;
 				m_write <= '1';
 				m_read <= '0';
-				m_writedata <= _cache(block_index)(127 downto 0)((c * 8) + 7 + 32*delta downto (c*8) + 32*delta);
+				m_writedata <= _cache(block_index)(127 downto 0)((c * 8) + 7 + 32*(word_offset - 1) downto (c*8) + 32*(word_offset - 1));
 				c := c + 1;
 				_next <= memomry_write;
+
 			-- Read from memory 
 			elsif count = 4 then
 				count:= 0;
@@ -176,17 +181,17 @@ begin
 		-- Wait to access the main memory
 		when memory_wait => 
 			if c < 3 and m_waitrequest = '0' then
-				_cache(block_index)(127 downto 0)((c * 8) + 7 + 32*delta downto (c*8) + 32*delta) <= m_readdate;
+				_cache(block_index)(127 downto 0)((c * 8) + 7 + 32*(word_offset - 1) downto (c*8) + 32*(word_offset - 1)) <= m_readdate;
 				c := c + 1;
 				m_read <= '0';
 				_next <= memory_read;
 			elsif c = 3 and m_waitrequest = '0' then
-				_cache(block_index)(127 downto 0)((c*8) + 7 + 32*delta downto (c*8) + 32*delta) <= m_readdate;
+				_cache(block_index)(127 downto 0)((c*8) + 7 + 32*(word_offset - 1) downto (c*8) + 32*(word_offset - 1)) <= m_readdate;
 				c := c + 1;
 				m_read <= '0';
 				_next <= memory_wait;
 			elsif c = 4 then
-				s_readdata <= _cache(block_index)(127 downto 0)((word_offset * 32) - 1 downto 32*delta);
+				s_readdata <= _cache(block_index)(127 downto 0)((word_offset * 32) - 1 downto 32*(word_offset - 1));
 				-- Set Tag
 				_cache(block_index)(152 downto 128) <= s_addr (31 downto 7);
 				-- Set dirt bit to 0 and valid bit to 1
@@ -212,13 +217,14 @@ begin
 				m_addr <= to_integer(unsigned (address)) + c;
 				m_write <= '1';
 				m_read <= '0';
-				m_writedata <= _cache(block_index)(127 downto 0)((c * 8) + 7 + 32*delta downto (c*8) + 32*delta);
+				m_writedata <= _cache(block_index)(127 downto 0)((c * 8) + 7 + 32*(word_offset - 1) downto (c*8) + 32*(word_offset - 1));
 				c := c + 1;
 				_next <= writeback;
+
 			-- Write to the cache
 			elsif c = 4 then 
 				-- Write
-				_cache(block_index)(127 downto 0)((block_offset * 32) - 1 downto 32*delta) <= s_writedata (31 downto 0);
+				_cache(block_index)(127 downto 0)((block_offset * 32) - 1 downto 32*(word_offset - 1)) <= s_writedata (31 downto 0);
 				-- Set Tag
 				_cache(block_index)(152 downto 128) <= s_addr (31 downto 7);
 				-- Set dirt and valid bits to 1
