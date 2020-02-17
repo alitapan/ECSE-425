@@ -46,7 +46,7 @@ signal _next : state_type;
 -- We define bit 154 to be valid bit, bit 153 to be dirty bit, bits 152 to 128 to be tag bits
 type cache_def is array (0 to 31) of std_logic_vector (154 downto 0);
 
-signal _cache: state_type;
+signal _cache: cache_def;
 
 begin
 -- Set up the clock for transition between states
