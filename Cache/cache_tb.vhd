@@ -7,11 +7,12 @@ end cache_tb;
 
 architecture behavior of cache_tb is
 
-component cache is
-generic(
+COMPONENT cache is
+GENERIC(
     ram_size : INTEGER := 32768
 );
-port(
+PORT(
+
     clock : in std_logic;
     reset : in std_logic;
 
