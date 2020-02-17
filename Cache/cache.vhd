@@ -64,20 +64,20 @@ end process;
 
 process(s_read, s_write, m_waitrequest, state)
 
-	variable c: INTEGER := 0; -- Word counter within the block
+	variable c : INTEGER := 0; -- Word counter within the block
 
 	-- Cache should simply use the lower 15 bits of the address and ignore the rest since
 	-- the main memory here has only 2^15 bytes (32768 bytes).
 	variable address: std_logic_vector (14 downto 0);
 
 	-- Defining the offset and index
-	variable word_offset: INTEGER;
+	variable word_offset: INTEGER := 0;
 	variable block_index: INTEGER;
 
 
 begin
 	-- 2 bits for offset
-	word_offset := to_integer(unsigned(s_addr(1 downto 0));
+	word_offset := to_integer(unsigned(s_addr(1 downto 0))) + 1;
 	-- 5 bits for index
 	block_index:= to_integer(unsigned(s_addr(6 downto 2));
 	
@@ -100,8 +100,8 @@ begin
 
 		-- The operation requested is write
 		when _write=>
-			-- Check for dirty and valid bits before writing, if it is then move to the writeback state
-			if _cache(block_index)(153) = '1'  and _next /= initial and (_cache(block_index)(154) or _cache(block_index)(152 downto 128) /= s_addr (31 downto 7)) then
+			-- Check for valid and dirty bits aswell as the tag before writing, if it is dirty, valid and the tags match then its a miss, move to the writeback state
+			if (_cache(block_index)(154) or _cache(block_index)(152 downto 128) /= s_addr (31 downto 7)) and _cache(block_index)(153) = '1'  and _next /= initial then
 				_next <= writeback;
 
 			-- If there is no present dirty bit and valid bit present, set it to 1 since we are doing a write operation
@@ -111,18 +111,19 @@ begin
 				_cache(block_index)(154) <= '1';
 				-- Write
 				_cache(block_index)(127 downto 0)((word_offset*32)) - 1 downto 32*(word_offset - 1)) <= s_writedata;
+				-- Set tag
 				_cache(index)(152 downto 128) <= s_addr(31 downto 7);
 				s_waitrequest <= '0';
-				-- Once write operation is done move back to the initial state to wait for the next operation
+				-- Once write operation is done move back to the initial state and wait for the next operation
 				_next <= initial;
 			end if;
 
 		-- The operation requested is read
 		when _read =>
-			-- Check if the tags are matching and the valid bit is 1, if its then its a hit in the cache
+			-- Check if the tags are matching and the valid bit is 1, if it is, then its a hit in the cache we can read the data
 			if _cache(block_index)(152 downto 128) = s_addr(31 downto 7) and _cache(block_index)(154) = '1' then
 				-- Read the requested data by indexing though the block and the word
-				s_readdate <= _cache(block_index)(127 downto 0)((word_offset*32) - 1 downto 32*(word_offset - 1));
+				s_readata <= _cache(block_index)(127 downto 0)((word_offset*32) - 1 downto 32*(word_offset - 1));
 				s_waitrequest <= '0';
 				-- Once read operation is done move back to the initial state to wait for the next operation
 				_next <= initial;
@@ -163,15 +164,17 @@ begin
 			if c < 4 and m_waitrequest = '1' and _next /= memory_read then
 				address := _cache(block_index)(135 downto 128) & s_addr (6 downto 0);
 				m_addr <= to_integer(unsigned (address)) + c;
+
 				m_write <= '1';
 				m_read <= '0';
+
 				-- Write
 				m_writedata <= _cache(block_index)(127 downto 0)((c * 8) + 7 + 32*(word_offset - 1) downto (c*8) + 32*(word_offset - 1));
 				-- Increment the word counter
 				c := c + 1;
 				_next <= memomry_write;
 
-			-- Read from memory 
+			-- Read from the memory 
 			elsif count = 4 then
 				count:= 0;
 				_next <= memory_read;
@@ -183,11 +186,13 @@ begin
 		-- Wait to access the main memory
 		when memory_wait => 
 			if c < 3 and m_waitrequest = '0' then
+				-- Read the data
 				_cache(block_index)(127 downto 0)((c * 8) + 7 + 32*(word_offset - 1) downto (c*8) + 32*(word_offset - 1)) <= m_readdata;
 				c := c + 1;
 				m_read <= '0';
 				_next <= memory_read;
 			elsif c = 3 and m_waitrequest = '0' then
+				-- Read the data
 				_cache(block_index)(127 downto 0)((c*8) + 7 + 32*(word_offset - 1) downto (c*8) + 32*(word_offset - 1)) <= m_readdata;
 				c := c + 1;
 				m_read <= '0';
@@ -196,16 +201,20 @@ begin
 				s_readdata <= _cache(block_index)(127 downto 0)((word_offset * 32) - 1 downto 32*(word_offset - 1));
 				-- Set Tag
 				_cache(block_index)(152 downto 128) <= s_addr (31 downto 7);
+
 				-- Set dirt bit to 0 and valid bit to 1
 				_cache(block_index)(153) <= '0';
 				_cache(block_index)(154) <= '1';
+
 				m_read <= '0';
 				m_write <= '0';
 				s_waitrequest <= '0';
+
 				-- Reset the word counter
 				count := 0;
 				-- Move back to the initial state to wait for the next operation
 				_next <= initial;
+				
 			-- Keep waiting
 			else
 				_next <= memory_wait;
