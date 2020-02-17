@@ -41,7 +41,7 @@ type state_type is (initial, _write, _read, memory_write, memory_read, memory_wa
 signal state : state_type;
 signal _next : state_type;
 
--- Since we need 1 valid bit, 1 dirty bit, 25 tag bits and 128 data bits for the address structure
+-- Since we need 1 valid bit, 1 dirty bit, 25 tag bits and 128 data bits for the cache structure
 -- 1 + 1 + 25 + 128 = 155 bits for the cache
 -- We define bit 154 to be valid bit, bit 153 to be dirty bit, bits 152 to 128 to be tag bits
 type cache_def is array (0 to 31) of std_logic_vector (154 downto 0);
@@ -214,7 +214,7 @@ begin
 				count := 0;
 				-- Move back to the initial state to wait for the next operation
 				_next <= initial;
-				
+
 			-- Keep waiting
 			else
 				_next <= memory_wait;
