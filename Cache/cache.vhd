@@ -37,7 +37,7 @@ architecture arch of cache is
 -- Write-back policy only updates external memory when a line 
 -- in the cache is cleaned or replaced with a new line.
 -- Defining all the possible states for a write-back cache:
-type state_type is (initial, _write, _read, memory_write, memory_read, memory_wait, writeback);
+type state_type is (initial, write_, read_, memory_write, memory_read, memory_wait, writeback);
 signal state : state_type;
 signal _next : state_type;
 
@@ -88,7 +88,7 @@ begin
 			s_waitrequest <= '1';
 			-- Check if there is a write operation
 			if s_write = '1' then 
-				_next <= _write;
+				_next <= write_;
 			-- Check if there is a read operation
 			elsif s_read = '1' then
 				_next <= _read;
@@ -98,7 +98,7 @@ begin
 			end if;
 
 		-- The operation requested is write
-		when _write=>
+		when write_=>
 			-- Check for valid and dirty bits aswell as the tag before writing, if it is dirty, valid and the tags match then its a miss, move to the writeback state
 			if (_cache(block_index)(154) or _cache(block_index)(152 downto 128) /= s_addr (31 downto 7)) and _cache(block_index)(153) = '1'  and _next /= initial then
 				_next <= writeback;
