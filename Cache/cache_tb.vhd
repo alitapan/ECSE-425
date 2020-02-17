@@ -136,11 +136,6 @@ begin
 	--    15. Write -  Dirty,  Miss,  Valid
 	--    16. Write -  Dirty,  Miss,  Invalid
 
-	
-	-- INVALID
-	--    1.  Read  - Clean and Miss
-
-	
 	-- INVALID  - WRITE MISS CLEAN and  VALID - READ HIT (CLEAN/DIRTY)  
 	s_addr <= "11111111111111111111111111111111";                        
 	s_write <= '1';                                                      
